@@ -753,6 +753,7 @@ HISTORY_MSG_DEHAZE_SHOW_DEPTH_MAP;Dehaze - Show depth map
 HISTORY_MSG_DEHAZE_STRENGTH;Dehaze - Strength
 HISTORY_MSG_DUALDEMOSAIC_AUTO_CONTRAST;Dual demosaic - Auto threshold
 HISTORY_MSG_DUALDEMOSAIC_CONTRAST;Dual demosaic - Contrast threshold
+HISTORY_MSG_FASTDEMOSAIC_SMOOTH;Fast demosaic - Smooth
 HISTORY_MSG_HISTMATCHING;Auto-matched tone curve
 HISTORY_MSG_ICM_OUTPUT_PRIMARIES;Output - Primaries
 HISTORY_MSG_ICM_OUTPUT_TEMP;Output - ICC-v4 illuminant D
@@ -1865,6 +1866,7 @@ TP_RAW_DMETHOD_TOOLTIP;Note: IGV and LMMSE are dedicated to high ISO images to a
 TP_RAW_DUALDEMOSAICAUTOCONTRAST;Auto threshold
 TP_RAW_DUALDEMOSAICAUTOCONTRAST_TOOLTIP;If the checkbox is checked (recommended), RawTherapee calculates an optimum value based on flat regions in the image.\nIf there is no flat region in the image or the image is too noisy, the value will be set to 0.\nTo set the value manually, uncheck the checkbox first (reasonable values depend on the image).
 TP_RAW_DUALDEMOSAICCONTRAST;Contrast threshold
+TP_RAW_FASTDEMOSAIC_SMOOTH;Smooth fast demosaic
 TP_RAW_EAHD;EAHD
 TP_RAW_FALSECOLOR;False color suppression steps
 TP_RAW_FAST;Fast

@@ -958,7 +958,7 @@ void RawImageSource::xtrans_interpolate (const int passes, const bool useCieLab)
 
 }
 #undef CLIP
-void RawImageSource::fast_xtrans_interpolate (const array2D<float> &rawData, array2D<float> &red, array2D<float> &green, array2D<float> &blue)
+void RawImageSource::fast_xtrans_interpolate (const array2D<float> &rawData, array2D<float> &red, array2D<float> &green, array2D<float> &blue, float smoothGreens)
 {
 //    if (settings->verbose) {
 //        printf("fast X-Trans interpolation...\n");
@@ -999,7 +999,7 @@ void RawImageSource::fast_xtrans_interpolate (const array2D<float> &rawData, arr
 
             case 1:
                 red[row][col] = sum[0] * 0.5f;
-                green[row][col] = sum[1] * 0.2f;
+                green[row][col] = intp(smoothGreens, sum[1] * 0.2f, rawData[row][col]);
                 blue[row][col] = sum[2] * 0.5f;
                 break;
 

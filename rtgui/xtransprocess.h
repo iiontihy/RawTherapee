@@ -35,6 +35,7 @@ protected:
     Adjuster* ccSteps;
     Gtk::VBox *dualDemosaicOptions;
     Adjuster* dualDemosaicContrast;
+    Adjuster* smoothGreens;
     bool lastAutoContrast;
 
     int oldSelection;
@@ -42,6 +43,7 @@ protected:
     IdleRegister idle_register;
     rtengine::ProcEvent EvDemosaicAutoContrast;
     rtengine::ProcEvent EvDemosaicContrast;
+    rtengine::ProcEvent EvDemosaicSmoothGreens;
 
 public:
 

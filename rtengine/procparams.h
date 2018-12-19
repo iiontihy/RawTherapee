@@ -1368,6 +1368,7 @@ struct RAWParams {
         Glib::ustring method;
         bool dualDemosaicAutoContrast;
         double dualDemosaicContrast;
+        int smoothGreens;
         int ccSteps;
         double blackred;
         double blackgreen;

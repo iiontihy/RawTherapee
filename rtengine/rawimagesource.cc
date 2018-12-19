@@ -2105,8 +2105,9 @@ void RawImageSource::demosaic(const RAWParams &raw, bool autoContrast, double &c
             nodemosaic(false);
         }
     } else if (ri->getSensorType() == ST_FUJI_XTRANS) {
+        const float smoothGreens = raw.xtranssensor.smoothGreens / 100.f;
         if (raw.xtranssensor.method == RAWParams::XTransSensor::getMethodString(RAWParams::XTransSensor::Method::FAST) ) {
-            fast_xtrans_interpolate(rawData, red, green, blue);
+            fast_xtrans_interpolate(rawData, red, green, blue, smoothGreens);
         } else if (raw.xtranssensor.method == RAWParams::XTransSensor::getMethodString(RAWParams::XTransSensor::Method::ONE_PASS)) {
             xtrans_interpolate(1, false);
         } else if (raw.xtranssensor.method == RAWParams::XTransSensor::getMethodString(RAWParams::XTransSensor::Method::THREE_PASS) ) {

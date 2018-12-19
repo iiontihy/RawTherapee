@@ -82,7 +82,7 @@ void RawImageSource::dual_demosaic_RT(bool isBayer, const RAWParams &raw, int wi
         } else {
             xtrans_interpolate (1, false);
         }
-        fast_xtrans_interpolate(rawData, redTmp, greenTmp, blueTmp);
+        fast_xtrans_interpolate(rawData, redTmp, greenTmp, blueTmp, raw.xtranssensor.smoothGreens / 100.f);
     }
 
     const float xyz_rgb[3][3] = {          // XYZ from RGB
