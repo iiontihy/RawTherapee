@@ -999,7 +999,7 @@ void RawImageSource::fast_xtrans_interpolate (const array2D<float> &rawData, arr
 
             case 1:
                 red[row][col] = sum[0] * 0.5f;
-                green[row][col] = rawData[row][col];
+                green[row][col] = sum[1] * 0.2f;
                 blue[row][col] = sum[2] * 0.5f;
                 break;
 
