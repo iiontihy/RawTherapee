@@ -18,78 +18,92 @@
  *  along with RawTherapee.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
+#include <map>
+#include <set>
+
 #include "rtimage.h"
 
-#include <iostream>
-
 #include "options.h"
+
 #include "../rtengine/icons.h"
 
 namespace
 {
 
-std::map<std::string, Glib::RefPtr<Gdk::Pixbuf>> pixbufCache;
+using PixbufCache = std::map<std::string, Glib::RefPtr<Gdk::Pixbuf>>;
+
+PixbufCache pixbuf_cache;
 
 }
 
-RTImage::RTImage (const Glib::ustring& fileName, const Glib::ustring& rtlFileName) : Gtk::Image()
+RTImage::RTImage(const Glib::ustring& file_name, const Glib::ustring& rtl_file_name) :
+    Gtk::Image()
 {
-    Glib::ustring imageName;
-
-    if (!rtlFileName.empty () && get_direction () == Gtk::TEXT_DIR_RTL) {
-        imageName = rtlFileName;
-    } else {
-        imageName = fileName;
-    }
-
-    changeImage (imageName);
+    changeImage(
+        !rtl_file_name.empty() && get_direction() == Gtk::TEXT_DIR_RTL
+            ? rtl_file_name
+            : file_name
+    );
 }
 
-void RTImage::changeImage (const Glib::ustring& imageName)
+void RTImage::changeImage(const Glib::ustring& image_name)
 {
-    clear ();
+    clear();
 
-    auto iterator = pixbufCache.find (imageName);
+    PixbufCache::const_iterator entry = pixbuf_cache.find(image_name);
 
-    if (iterator == pixbufCache.end ()) {
-        const auto imagePath = rtengine::findIconAbsolutePath (imageName);
-        const auto pixbuf = Gdk::Pixbuf::create_from_file (imagePath);
+    if (entry == pixbuf_cache.end()) {
+        try {
+            const Glib::ustring imagePath = rtengine::findIconAbsolutePath(image_name);
+            const Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(imagePath);
 
-        iterator = pixbufCache.emplace (imageName, pixbuf).first;
+            entry = pixbuf_cache.emplace(image_name, pixbuf).first;
+        } catch (const Glib::Exception& exception) {
+        }
     }
 
-    set(iterator->second);
+    if (entry != pixbuf_cache.end()) {
+        set(entry->second);
+    }
 }
 
 void RTImage::updateImages()
 {
-    for (auto& entry : pixbufCache) {
-        const auto imagePath = rtengine::findIconAbsolutePath (entry.first);
-        entry.second = Gdk::Pixbuf::create_from_file (imagePath);
+    std::set<Glib::ustring> invalid_entries;
+
+    for (auto& entry : pixbuf_cache) {
+        try {
+            const Glib::ustring image_path = rtengine::findIconAbsolutePath(entry.first);
+            entry.second = Gdk::Pixbuf::create_from_file(image_path);
+        }  catch (const Glib::Exception& exception) {
+            invalid_entries.insert(entry.first);
+        }
+    }
+
+    for (const auto& invalid_entry : invalid_entries) {
+        pixbuf_cache.erase(invalid_entry);
     }
 }
 
 void RTImage::cleanup()
 {
-    pixbufCache.clear();
+    pixbuf_cache.clear();
 }
 
-Glib::RefPtr<Gdk::Pixbuf> RTImage::createFromFile (const Glib::ustring& fileName)
+Glib::RefPtr<Gdk::Pixbuf> RTImage::createFromFile(const Glib::ustring& file_name)
 {
     Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 
     try {
+        const Glib::ustring file_path = rtengine::findIconAbsolutePath(file_name);
 
-        const auto filePath = rtengine::findIconAbsolutePath (fileName);
-
-        if (!filePath.empty ()) {
-            pixbuf = Gdk::Pixbuf::create_from_file (filePath);
+        if (!file_path.empty()) {
+            pixbuf = Gdk::Pixbuf::create_from_file(file_path);
         }
-
     } catch (const Glib::Exception& exception) {
-
         if (options.rtSettings.verbose) {
-            std::cerr << "Failed to load image \"" << fileName << "\": " << exception.what() << std::endl;
+            std::cerr << "Failed to load image \"" << file_name << "\": " << exception.what() << std::endl;
         }
 
     }
@@ -97,26 +111,22 @@ Glib::RefPtr<Gdk::Pixbuf> RTImage::createFromFile (const Glib::ustring& fileName
     return pixbuf;
 }
 
-Cairo::RefPtr<Cairo::ImageSurface> RTImage::createFromPng (const Glib::ustring& fileName)
+Cairo::RefPtr<Cairo::ImageSurface> RTImage::createFromPng(const Glib::ustring& file_name)
 {
     Cairo::RefPtr<Cairo::ImageSurface> surface;
 
     try {
+        const Glib::ustring file_path = rtengine::findIconAbsolutePath(file_name);
 
-        const auto filePath = rtengine::findIconAbsolutePath (fileName);
-
-        if (!filePath.empty()) {
-            surface = Cairo::ImageSurface::create_from_png (Glib::locale_from_utf8 (filePath));
+        if (!file_path.empty()) {
+            surface = Cairo::ImageSurface::create_from_png(Glib::locale_from_utf8(file_path));
         }
 
     } catch (const Glib::Exception& exception) {
-
         if (options.rtSettings.verbose) {
-            std::cerr << "Failed to load PNG \"" << fileName << "\": " << exception.what() << std::endl;
+            std::cerr << "Failed to load PNG \"" << file_name << "\": " << exception.what() << std::endl;
         }
     }
 
     return surface;
 }
-
-

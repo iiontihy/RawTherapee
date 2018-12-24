@@ -16,12 +16,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with RawTherapee.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _RTIMAGE_
-#define _RTIMAGE_
+#pragma once
 
 #include <gtkmm/image.h>
-
-class Options;
 
 /**
  * @brief A derived class of Gtk::Image in order to handle theme-related icon sets.
@@ -29,14 +26,13 @@ class Options;
 class RTImage : public Gtk::Image
 {
 public:
-    RTImage(const Glib::ustring& fileName, const Glib::ustring& rtlFileName = {});
+    RTImage(const Glib::ustring& file_name, const Glib::ustring& rtl_file_name = {});
 
-    void changeImage(const Glib::ustring& imageName);
+    void changeImage(const Glib::ustring& image_name);
+
     static void updateImages();
     static void cleanup();
 
-    static Glib::RefPtr<Gdk::Pixbuf> createFromFile(const Glib::ustring& fileName);
-    static Cairo::RefPtr<Cairo::ImageSurface> createFromPng(const Glib::ustring& fileName);
+    static Glib::RefPtr<Gdk::Pixbuf> createFromFile(const Glib::ustring& file_name);
+    static Cairo::RefPtr<Cairo::ImageSurface> createFromPng(const Glib::ustring& file_name);
 };
-
-#endif
