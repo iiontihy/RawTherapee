@@ -29,13 +29,14 @@ class Options;
 class RTImage : public Gtk::Image
 {
 public:
-    RTImage (const Glib::ustring& fileName, const Glib::ustring& rtlFileName = Glib::ustring());
+    RTImage(const Glib::ustring& fileName, const Glib::ustring& rtlFileName = {});
 
-    void changeImage (const Glib::ustring& imageName);
-    static void updateImages ();
+    void changeImage(const Glib::ustring& imageName);
+    static void updateImages();
+    static void cleanup();
 
-    static Glib::RefPtr<Gdk::Pixbuf> createFromFile (const Glib::ustring& fileName);
-    static Cairo::RefPtr<Cairo::ImageSurface> createFromPng (const Glib::ustring& fileName);
+    static Glib::RefPtr<Gdk::Pixbuf> createFromFile(const Glib::ustring& fileName);
+    static Cairo::RefPtr<Cairo::ImageSurface> createFromPng(const Glib::ustring& fileName);
 };
 
 #endif

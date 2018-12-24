@@ -69,6 +69,11 @@ void RTImage::updateImages()
     }
 }
 
+void RTImage::cleanup()
+{
+    pixbufCache.clear();
+}
+
 Glib::RefPtr<Gdk::Pixbuf> RTImage::createFromFile (const Glib::ustring& fileName)
 {
     Glib::RefPtr<Gdk::Pixbuf> pixbuf;
