@@ -4118,7 +4118,7 @@ void CLASS foveon_interpolate()
   static const short hood[] = { -1,-1, -1,0, -1,1, 0,-1, 0,1, 1,-1, 1,0, 1,1 };
   short *pix, prev[3], *curve[8], (*shrink)[3];
   float cfilt=0, ddft[3][3][2], ppm[3][3][3];
-  float cam_xyz[3][3], correct[3][3], last[3][3], trans[3][3];
+  float correct[3][3], last[3][3], trans[3][3];
   float chroma_dq[3], color_dq[3], diag[3][3], div[3];
   float (*black)[3], (*sgain)[3], (*sgrow)[3];
   float fsum[3], val, frow, num;
@@ -4796,6 +4796,15 @@ void CLASS cam_xyz_coeff (float rgb_cam[3][4], double cam_xyz[4][3])
   for (i=0; i < 3; i++)
     for (j=0; j < colors; j++)
       rgb_cam[i][j] = inverse[j][i];
+}
+
+void CLASS get_cam_xyz(double (&cam_xyz_copy)[3][3])
+{
+    for(int i = 0; i<3; i++)
+       for(int j = 0; j<3; j++)
+       {
+           cam_xyz_copy[i][j] = cam_xyz[i][j];
+       }
 }
 
 #ifdef COLORCHECK
@@ -6709,7 +6718,9 @@ guess_cfa_pc:
         cm_D65 = 0;
     FORCC for (i=0; i < 3; i++)
       for (cam_xyz[c][i]=j=0; j < colors; j++)
-	cam_xyz[c][i] += cc[cm_D65][c][j] * cm[cm_D65][j][i] * xyz[i];
+      {
+          cam_xyz[c][i] += cc[cm_D65][c][j] * cm[cm_D65][j][i] * xyz[i];
+      }
     cam_xyz_coeff (cmatrix, cam_xyz);
   }
   if (asn[0]) {
@@ -6717,7 +6728,9 @@ guess_cfa_pc:
     FORCC cam_mul[c] = 1 / asn[c];
   }
   if (!use_cm)
+  {
     FORCC pre_mul[c] /= cc[cm_D65][c][c];
+  }
 
   return 0;
 }
@@ -8778,7 +8791,6 @@ void CLASS adobe_coeff (const char *make, const char *model)
     { "YI M1", 0, 0,
 	{ 7712,-2059,-653,-3882,11494,2726,-710,1332,5958 } },
   };
-  double cam_xyz[4][3];
   char name[130];
   int i, j;
 

@@ -736,6 +736,10 @@ Gtk::Widget* Preferences::getColorManPanel ()
     setExpandAlignProperties (iccDir, true, false, Gtk::ALIGN_FILL, Gtk::ALIGN_CENTER);
     Gtk::Label* pdlabel = Gtk::manage (new Gtk::Label (M ("PREFERENCES_ICCDIR") + ":", Gtk::ALIGN_START));
     setExpandAlignProperties (pdlabel, false, false, Gtk::ALIGN_FILL, Gtk::ALIGN_CENTER);
+    
+    noSilentSRGB = Gtk::manage (new Gtk::CheckButton (M ("PREFERENCES_ICC_NONSRGB_PATH")));
+    setExpandAlignProperties (noSilentSRGB, false, false, Gtk::ALIGN_START, Gtk::ALIGN_CENTER);
+    noSilentSRGB->set_active (true);
 
     Gtk::Grid* iccdgrid = Gtk::manage (new Gtk::Grid ());
     setExpandAlignProperties (iccdgrid, true, false, Gtk::ALIGN_FILL, Gtk::ALIGN_FILL);
@@ -746,6 +750,7 @@ Gtk::Widget* Preferences::getColorManPanel ()
 
     iccdgrid->attach (*pdlabel, 0, 0, 1, 1);
     iccdgrid->attach (*iccDir, 1, 0, 1, 1);
+    iccdgrid->attach (*noSilentSRGB, 0, 1, 1, 1);
     iccdgrid->attach (*monProfileRestartNeeded, 2, 0, 1, 1);
 
     iccDir->signal_selection_changed ().connect (sigc::mem_fun (this, &Preferences::iccDirChanged));
@@ -1724,10 +1729,12 @@ void Preferences::storePreferences ()
             break;
     }
 
-    moptions.rtSettings.monitorBPC = monBPC->get_active ();
+    moptions.rtSettings.noSilentSRGB = noSilentSRGB->get_active ();
     moptions.rtSettings.autoMonitorProfile = cbAutoMonProfile->get_active ();
 #endif
 
+    moptions.rtSettings.monitorBPC = monBPC->get_active ();
+    
     moptions.rtSettings.iccDirectory = iccDir->get_filename ();
 
     moptions.prevdemo = (prevdemo_t)cprevdemo->get_active_row_number ();
@@ -1876,6 +1883,9 @@ void Preferences::fillPreferences ()
     }
 
     monBPC->set_active (moptions.rtSettings.monitorBPC);
+    
+    noSilentSRGB->set_active (moptions.rtSettings.noSilentSRGB);
+    
     cbAutoMonProfile->set_active (moptions.rtSettings.autoMonitorProfile);
 #endif
 

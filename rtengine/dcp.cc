@@ -476,7 +476,7 @@ DCPProfile::DCPProfile(const Glib::ustring& filename) :
     baseline_exposure_offset(0.0)
 {
     delta_info.hue_step = delta_info.val_step = look_info.hue_step = look_info.val_step = 0;
-    constexpr int tiff_float_size = 4;
+    constexpr double tiff_float_size = 4.0f;
 
     enum class TagKey : int {
         COLOR_MATRIX_1 = 50721,

@@ -250,9 +250,16 @@ private:
         if (pl) {
             pl->setProgress (0.45);
         }
-
+        ImageMatrices* imgSrcMX = imgsrc->getImageMatrices();
         // set the color temperature
-        currWB = ColorTemp (params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method);
+        if(settings->noSilentSRGB)
+        {
+            currWB = ColorTemp (params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method, imgSrcMX->xyz_cam);
+        }
+        else
+        {
+            currWB = ColorTemp (params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method);
+        }
 
         if (!params.wb.enabled) {
             currWB = ColorTemp();
@@ -261,6 +268,11 @@ private:
         } else if (params.wb.method == "Auto") {
             double rm, gm, bm;
             imgsrc->getAutoWBMultipliers (rm, gm, bm);
+            // set the color temperature
+            if(settings->noSilentSRGB)
+            {
+                currWB = ColorTemp(rm, gm, bm, params.wb.equal, imgSrcMX->xyz_cam);
+            }
             currWB.update (rm, gm, bm, params.wb.equal, params.wb.tempBias);
         }
 

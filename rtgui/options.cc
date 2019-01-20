@@ -583,6 +583,7 @@ void Options::setDefaults()
     rtSettings.amchroma = 40;//between 20 and 140   low values increase effect..and also artifacts, high values reduces
     rtSettings.level0_cbdl = 0;
     rtSettings.level123_cbdl = 30;
+    rtSettings.noSilentSRGB = true;
 
     rtSettings.protectred = 60;
     rtSettings.protectredh = 0.3;
@@ -1417,6 +1418,10 @@ void Options::readFromFile(Glib::ustring fname)
                 if (keyFile.has_key("Color Management", "ICCDirectory")) {
                     rtSettings.iccDirectory = keyFile.get_string("Color Management", "ICCDirectory");
                 }
+                
+                if (keyFile.has_key("Color Management", "noSilentSRGB")) {
+                    rtSettings.noSilentSRGB = keyFile.get_boolean("Color Management", "noSilentSRGB");
+                }
 
                 if (keyFile.has_key("Color Management", "PrinterIntent")) {
                     rtSettings.printerIntent = static_cast<rtengine::RenderingIntent>(keyFile.get_integer("Color Management", "PrinterIntent"));
@@ -2117,6 +2122,7 @@ void Options::saveToFile(Glib::ustring fname)
         keyFile.set_boolean("Color Management", "PrinterBPC", rtSettings.printerBPC);
 
         keyFile.set_string("Color Management", "ICCDirectory", rtSettings.iccDirectory);
+        keyFile.set_boolean("Color Management", "noSilentSRGB", rtSettings.noSilentSRGB);
         keyFile.set_string("Color Management", "MonitorProfile", rtSettings.monitorProfile);
         keyFile.set_boolean("Color Management", "AutoMonitorProfile", rtSettings.autoMonitorProfile);
         keyFile.set_boolean("Color Management", "Autocielab", rtSettings.autocielab);
