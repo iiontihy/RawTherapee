@@ -42,6 +42,7 @@ private:
     double temp;
     double green;
     double equal;
+    double cam_xyz[3][3];
     std::string method;
     static void clip (double &temp, double &green);
     static void clip (double &temp, double &green, double &equal);
@@ -49,11 +50,13 @@ private:
     void temp2mul (double temp, double green, double equal, double& rmul, double& gmul, double& bmul) const;
     const static std::map<std::string,const double *> spectMap;
 public:
-
+                 
     ColorTemp () : temp(-1.), green(-1.), equal (1.), method("Custom") {}
     explicit ColorTemp (double e) : temp(-1.), green(-1.), equal (e), method("Custom") {}
     ColorTemp (double t, double g, double e, const std::string &m);
+    ColorTemp (double t, double g, double e, const std::string &m, double cam_xyz_init[3][3]);
     ColorTemp (double mulr, double mulg, double mulb, double e);
+    ColorTemp (double mulr, double mulg, double mulb, double e, double cam_xyz_init[3][3]);
 
     void update (const double rmul, const double gmul, const double bmul, const double equal, const double tempBias=0.0)
     {

@@ -67,9 +67,26 @@ static const double cie_colour_match_jd[97][3] = {//350nm to 830nm   5 nm J.Desm
 
 ColorTemp::ColorTemp (double t, double g, double e, const std::string &m) : temp(t), green(g), equal(e), method(m)
 {
+    for(int i = 0; i<3; i++)
+       for(int j = 0; j<3; j++)
+       {
+           cam_xyz[i][j] = sRGBd65_xyz[i][j];
+       };
+       
     clip (temp, green, equal);
 }
 
+ColorTemp::ColorTemp (double t, double g, double e, const std::string &m, double cam_xyz_init[3][3]) : temp(t), green(g), equal(e), method(m)
+{    
+    for(int i = 0; i<3; i++)
+       for(int j = 0; j<3; j++)
+       {
+           cam_xyz[i][j] = cam_xyz_init[i][j];
+       };
+       
+    clip (temp, green, equal);
+}
+                                                                                              
 void ColorTemp::clip (double &temp, double &green)
 {
     temp = rtengine::LIM(temp, MINTEMP, MAXTEMP);
@@ -85,6 +102,22 @@ void ColorTemp::clip (double &temp, double &green, double &equal)
 
 ColorTemp::ColorTemp (double mulr, double mulg, double mulb, double e) : equal(e), method("Custom")
 {
+    for(int i = 0; i<3; i++)
+       for(int j = 0; j<3; j++)
+       {
+           cam_xyz[i][j] = sRGBd65_xyz[i][j];
+       };
+    
+    mul2temp (mulr, mulg, mulb, equal, temp, green);
+}
+
+ColorTemp::ColorTemp (double mulr, double mulg, double mulb, double e, double cam_xyz_init[3][3]) : equal(e), method("Custom")
+{
+    for(int i = 0; i<3; i++)
+       for(int j = 0; j<3; j++)
+       {
+           cam_xyz[i][j] = cam_xyz_init[i][j];
+       };
     mul2temp (mulr, mulg, mulb, equal, temp, green);
 }
 
@@ -1082,9 +1115,18 @@ void ColorTemp::temp2mul (double temp, double green, double equal, double& rmul,
         bmul = sRGB_xyz[2][0]*X + sRGB_xyz[2][1]*Y + sRGB_xyz[2][2]*Z;
     } else {*/
     //recalculate channels multipliers with new values of XYZ tue to whitebalance
-    rmul = sRGBd65_xyz[0][0] * Xwb * adj + sRGBd65_xyz[0][1] + sRGBd65_xyz[0][2] * Zwb / adj; // Jacques' empirical modification 5/2013
-    gmul = sRGBd65_xyz[1][0] * Xwb       + sRGBd65_xyz[1][1] + sRGBd65_xyz[1][2] * Zwb;
-    bmul = sRGBd65_xyz[2][0] * Xwb * adj + sRGBd65_xyz[2][1] + sRGBd65_xyz[2][2] * Zwb / adj;
+    if(settings->noSilentSRGB)
+    {
+        rmul = cam_xyz[0][0] * Xwb * adj + cam_xyz[0][1] + cam_xyz[0][2] * Zwb / adj; // Jacques' empirical modification 5/2013
+        gmul = cam_xyz[1][0] * Xwb       + cam_xyz[1][1] + cam_xyz[1][2] * Zwb;
+        bmul = cam_xyz[2][0] * Xwb * adj + cam_xyz[2][1] + cam_xyz[2][2] * Zwb / adj;
+    }
+    else
+    {
+        rmul = sRGBd65_xyz[0][0] * Xwb * adj + sRGBd65_xyz[0][1] + sRGBd65_xyz[0][2] * Zwb / adj; // Jacques' empirical modification 5/2013
+        gmul = sRGBd65_xyz[1][0] * Xwb       + sRGBd65_xyz[1][1] + sRGBd65_xyz[1][2] * Zwb;
+        bmul = sRGBd65_xyz[2][0] * Xwb * adj + sRGBd65_xyz[2][1] + sRGBd65_xyz[2][2] * Zwb / adj;
+    }
     //};
     gmul /= green;
     //printf("rmul=%f gmul=%f bmul=%f\n",rmul, gmul, bmul);

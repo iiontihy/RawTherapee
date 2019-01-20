@@ -75,7 +75,7 @@ public:
     }
     ImageMatrices* getImageMatrices () override
     {
-        return (ImageMatrices*)nullptr;
+        return &imatrices;
     }
     bool        isRAW() const override
     {
