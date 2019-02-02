@@ -69,7 +69,15 @@ public:
         gamm[0]=0.45;gamm[1]=4.5;gamm[2]=gamm[3]=gamm[4]=gamm[5]=0;
         user_mul[0]=user_mul[1]=user_mul[2]=user_mul[3]=0;
         greybox[0]=greybox[1]=0; greybox[2]=greybox[3]= UINT_MAX;
+        for(int i = 0; i<4; i++)
+            for(int j = 0; j<3; j++)
+            {
+                cam_xyz[i][j] = 0.0;
+            }
     }
+public:
+    
+    void get_cam_xyz(double cam_xyz_copy[3][3]);
 
 protected:
     int exif_base, ciff_base, ciff_len;
@@ -160,6 +168,8 @@ protected:
     double RT_baseline_exposure;
 
     float cam_mul[4], pre_mul[4], cmatrix[3][4], rgb_cam[3][4];
+    // Making cam_xyz class member
+    double cam_xyz[4][3];
 
     int histogram[4][0x2000];
     void (DCraw::*write_thumb)(), (DCraw::*write_fun)();

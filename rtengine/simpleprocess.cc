@@ -157,6 +157,8 @@ private:
 
         // acquire image from imagesource
         imgsrc = ii->getImageSource ();
+    
+        ImageMatrices imgSrcMX = *(imgsrc->getImageMatrices) ();
 
         tr = getCoarseBitMask (params.coarse);
         if(imgsrc->getSensorType() == ST_BAYER) {
@@ -249,7 +251,7 @@ private:
         }
 
         // set the color temperature
-        currWB = ColorTemp (params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method);
+        currWB = ColorTemp (params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method, imgSrcMX.xyz_cam);
 
         if (!params.wb.enabled) {
             currWB = ColorTemp();

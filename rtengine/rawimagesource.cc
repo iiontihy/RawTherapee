@@ -625,9 +625,12 @@ void RawImageSource::getImage (const ColorTemp &ctemp, int tran, Imagefloat* ima
         bm = ri->get_pre_mul(2);
     } else {
         ctemp.getMultipliers (r, g, b);
-        rm = imatrices.cam_rgb[0][0] * r + imatrices.cam_rgb[0][1] * g + imatrices.cam_rgb[0][2] * b;
-        gm = imatrices.cam_rgb[1][0] * r + imatrices.cam_rgb[1][1] * g + imatrices.cam_rgb[1][2] * b;
-        bm = imatrices.cam_rgb[2][0] * r + imatrices.cam_rgb[2][1] * g + imatrices.cam_rgb[2][2] * b;
+        //rm = imatrices.cam_rgb[0][0] * r + imatrices.cam_rgb[0][1] * g + imatrices.cam_rgb[0][2] * b;
+        //gm = imatrices.cam_rgb[1][0] * r + imatrices.cam_rgb[1][1] * g + imatrices.cam_rgb[1][2] * b;
+        //bm = imatrices.cam_rgb[2][0] * r + imatrices.cam_rgb[2][1] * g + imatrices.cam_rgb[2][2] * b;
+        rm = r;
+        gm = g;
+        bm = b;
         float maxCMul = max(rm, gm, bm);
         rm /= maxCMul;
         gm /= maxCMul;
@@ -1589,7 +1592,8 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
 
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++) {
-            imatrices.rgb_cam[i][j] = ri->get_colors() == 1 ? (i == j) : ri->get_rgb_cam(i, j);
+            //imatrices.rgb_cam[i][j] = ri->get_colors() == 1 ? (i == j) : ri->get_rgb_cam(i, j);
+            imatrices.rgb_cam[i][j] = (i == j);
         }
 
     // compute inverse of the color transformation matrix
@@ -1610,15 +1614,21 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
 
     // create profile
     memset (imatrices.xyz_cam, 0, sizeof(imatrices.xyz_cam));
-
-    for (int i = 0; i < 3; i++)
+    
+    // Getting imatrices.xyz_cam values directly form the dcraw raw image
+    ri->get_cam_xyz(imatrices.cam_xyz);
+    inverse33 (imatrices.cam_xyz, imatrices.xyz_cam);
+    
+    // below is the old code, obsolete
+    /*for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
             for (int k = 0; k < 3; k++) {
                 imatrices.xyz_cam[i][j] += xyz_sRGB[i][k] * imatrices.rgb_cam[k][j];
-            }
+            }*/
+    
+    
 
     camProfile = ICCStore::getInstance()->createFromMatrix (imatrices.xyz_cam, false, "Camera");
-    inverse33 (imatrices.xyz_cam, imatrices.cam_xyz);
 
     for (int c = 0; c < 4; c++) {
         c_white[c] = ri->get_white(c);
@@ -1636,7 +1646,10 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
     double cam_r = imatrices.rgb_cam[0][0] * camwb_red + imatrices.rgb_cam[0][1] * camwb_green + imatrices.rgb_cam[0][2] * camwb_blue;
     double cam_g = imatrices.rgb_cam[1][0] * camwb_red + imatrices.rgb_cam[1][1] * camwb_green + imatrices.rgb_cam[1][2] * camwb_blue;
     double cam_b = imatrices.rgb_cam[2][0] * camwb_red + imatrices.rgb_cam[2][1] * camwb_green + imatrices.rgb_cam[2][2] * camwb_blue;
-    camera_wb = ColorTemp (cam_r, cam_g, cam_b, 1.); // as shot WB
+    //double cam_r = camwb_red;
+    //double cam_g = camwb_green;
+    //double cam_b = camwb_blue;
+    camera_wb = ColorTemp (cam_r, cam_g, cam_b, 1., imatrices.xyz_cam); // as shot WB
 
     ColorTemp ReferenceWB;
     double ref_r, ref_g, ref_b;
@@ -1651,7 +1664,7 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
         ref_r = imatrices.rgb_cam[0][0] * refwb_red + imatrices.rgb_cam[0][1] * refwb_green + imatrices.rgb_cam[0][2] * refwb_blue;
         ref_g = imatrices.rgb_cam[1][0] * refwb_red + imatrices.rgb_cam[1][1] * refwb_green + imatrices.rgb_cam[1][2] * refwb_blue;
         ref_b = imatrices.rgb_cam[2][0] * refwb_red + imatrices.rgb_cam[2][1] * refwb_green + imatrices.rgb_cam[2][2] * refwb_blue;
-        ReferenceWB = ColorTemp (ref_r, ref_g, ref_b, 1.);
+        ReferenceWB = ColorTemp (ref_r, ref_g, ref_b, 1., imatrices.xyz_cam);
     }
 
     if (settings->verbose) {
@@ -1663,7 +1676,7 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
             // Test code: if you want to test a specific white balance
         ColorTemp d50wb = ColorTemp(5000.0, 1.0, 1.0, "Custom");
         double rm,gm,bm,r,g,b;
-        d50wb.getMultipliers(r, g, b);
+        d50wb.getMultipliers(r, g, b, imatrices.xyz_cam);
         camwb_red   = imatrices.cam_rgb[0][0]*r + imatrices.cam_rgb[0][1]*g + imatrices.cam_rgb[0][2]*b;
         camwb_green = imatrices.cam_rgb[1][0]*r + imatrices.cam_rgb[1][1]*g + imatrices.cam_rgb[1][2]*b;
         camwb_blue  = imatrices.cam_rgb[2][0]*r + imatrices.cam_rgb[2][1]*g + imatrices.cam_rgb[2][2]*b;
@@ -5319,7 +5332,7 @@ ColorTemp RawImageSource::getSpotWB (std::vector<Coord2D> &red, std::vector<Coor
         double gm = imatrices.rgb_cam[1][0] * reds + imatrices.rgb_cam[1][1] * greens + imatrices.rgb_cam[1][2] * blues;
         double bm = imatrices.rgb_cam[2][0] * reds + imatrices.rgb_cam[2][1] * greens + imatrices.rgb_cam[2][2] * blues;
 
-        return ColorTemp (rm, gm, bm, equal);
+        return ColorTemp (rm, gm, bm, equal, imatrices.xyz_cam);
     }
 }
 

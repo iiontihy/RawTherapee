@@ -159,6 +159,8 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
     int readyphase = 0;
 
     bool highDetailNeeded = options.prevdemo == PD_Sidecar ? true : (todo & M_HIGHQUAL);
+    
+    ImageMatrices imgSrcMX = *(imgsrc->getImageMatrices ());
 
     // Check if any detail crops need high detail. If not, take a fast path short cut
     if (!highDetailNeeded) {
@@ -290,7 +292,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
             imgsrc->retinexPrepareCurves(params.retinex, cdcurve, mapcurve, dehatransmissionCurve, dehagaintransmissionCurve, dehacontlutili, mapcontlutili, useHsl, lhist16RETI, histLRETI);
             float minCD, maxCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax;
             imgsrc->retinex(params.icm, params.retinex,  params.toneCurve, cdcurve, mapcurve, dehatransmissionCurve, dehagaintransmissionCurve, conversionBuffer, dehacontlutili, mapcontlutili, useHsl, minCD, maxCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax, histLRETI);   //enabled Retinex
-
+                                   
             if (dehaListener) {
                 dehaListener->minmaxChanged(maxCD, minCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax);
             }
@@ -306,7 +308,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 printf("Applying white balance, color correction & sRBG conversion...\n");
             }
 
-            currWB = ColorTemp(params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method);
+            currWB = ColorTemp(params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method, imgSrcMX.xyz_cam);
 
             if (!params.wb.enabled) {
                 currWB = ColorTemp();
@@ -318,6 +320,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                     imgsrc->getAutoWBMultipliers(rm, gm, bm);
 
                     if (rm != -1.) {
+                        autoWB = ColorTemp(rm, gm, bm, params.wb.equal, imgSrcMX.xyz_cam);
                         autoWB.update(rm, gm, bm, params.wb.equal, params.wb.tempBias);
                         lastAwbEqual = params.wb.equal;
                         lastAwbTempBias = params.wb.tempBias;
@@ -1161,9 +1164,12 @@ void ImProcCoordinator::getSpotWB(int x, int y, int rect, double& temp, double& 
         ipf.transCoord(fw, fh, points, red, green, blue);
 
         int tr = getCoarseBitMask(params.coarse);
+        
+    
+        ImageMatrices imgSrcMX = *(imgsrc->getImageMatrices ());
 
         ret = imgsrc->getSpotWB(red, green, blue, tr, params.wb.equal);
-        currWB = ColorTemp(params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method);
+        currWB = ColorTemp(params.wb.temperature, params.wb.green, params.wb.equal, params.wb.method, imgSrcMX.xyz_cam);
         //double rr,gg,bb;
         //currWB.getMultipliers(rr,gg,bb);
 
@@ -1248,6 +1254,7 @@ void ImProcCoordinator::saveInputICCReference(const Glib::ustring& fname, bool a
     int fW, fH;
 
     int tr = getCoarseBitMask(params.coarse);
+    ImageMatrices imgSrcMX = *(imgsrc->getImageMatrices) ();
 
     imgsrc->getFullSize(fW, fH, tr);
     PreviewProps pp(0, 0, fW, fH, 1);
@@ -1268,6 +1275,7 @@ void ImProcCoordinator::saveInputICCReference(const Glib::ustring& fname, bool a
             imgsrc->getAutoWBMultipliers(rm, gm, bm);
 
             if (rm != -1.) {
+                autoWB = ColorTemp(rm, gm, bm, params.wb.equal, imgSrcMX.xyz_cam);
                 autoWB.update(rm, gm, bm, params.wb.equal, params.wb.tempBias);
                 lastAwbEqual = params.wb.equal;
                 lastAwbTempBias = params.wb.tempBias;
