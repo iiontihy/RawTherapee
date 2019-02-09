@@ -168,7 +168,7 @@ public:
         return ri->get_rotateDegree();
     }
 
-    ImageMatrices* getImageMatrices () override
+    ImageMatrices* getImageMatrices() override
     {
         return &imatrices;
     }

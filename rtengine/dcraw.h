@@ -72,12 +72,12 @@ public:
         for(int i = 0; i<4; i++)
             for(int j = 0; j<3; j++)
             {
-                cam_xyz[i][j] = 0.0;
+                cam_xyz[i][j] = (i == j);
             }
     }
 public:
     
-    void get_cam_xyz(double cam_xyz_copy[3][3]);
+    void get_cam_xyz(double (&cam_xyz_copy)[3][3]);
 
 protected:
     int exif_base, ciff_base, ciff_len;

@@ -73,11 +73,11 @@ public:
     {
         return img;
     }
-    ImageMatrices* getImageMatrices () override
+    ImageMatrices* getImageMatrices() override
     {
-        return (ImageMatrices*)nullptr;
+        return &imatrices;
     }
-    bool        isRAW() const override
+    bool        isRAW() const override         
     {
         return false;
     }

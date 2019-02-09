@@ -4729,9 +4729,9 @@ void CLASS cam_xyz_coeff (float rgb_cam[3][4], double cam_xyz[4][3])
       rgb_cam[i][j] = inverse[j][i];
 }
 
-void CLASS get_cam_xyz(double cam_xyz_copy[3][3])
+void CLASS get_cam_xyz(double (&cam_xyz_copy)[3][3])
 {
-   for(int i = 0; i<3; i++)
+    for(int i = 0; i<3; i++)
        for(int j = 0; j<3; j++)
        {
            cam_xyz_copy[i][j] = cam_xyz[i][j];
@@ -6636,7 +6636,9 @@ guess_cfa_pc:
         cm_D65 = 0;
     FORCC for (i=0; i < 3; i++)
       for (cam_xyz[c][i]=j=0; j < colors; j++)
-	cam_xyz[c][i] += cc[cm_D65][c][j] * cm[cm_D65][j][i] * xyz[i];
+      {
+          cam_xyz[c][i] += cc[cm_D65][c][j] * cm[cm_D65][j][i] * xyz[i];
+      }
     cam_xyz_coeff (cmatrix, cam_xyz);
   }
   if (asn[0]) {
@@ -6644,7 +6646,9 @@ guess_cfa_pc:
     FORCC cam_mul[c] = 1 / asn[c];
   }
   if (!use_cm)
+  {
     FORCC pre_mul[c] /= cc[cm_D65][c][c];
+  }
 
   return 0;
 }

@@ -118,7 +118,6 @@ ColorTemp::ColorTemp (double mulr, double mulg, double mulb, double e, double ca
        {
            cam_xyz[i][j] = cam_xyz_init[i][j];
        };
-       
     mul2temp (mulr, mulg, mulb, equal, temp, green);
 }
 

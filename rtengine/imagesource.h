@@ -109,7 +109,7 @@ public:
         return 0;
     }
 
-    virtual ImageMatrices* getImageMatrices () = 0;
+    virtual ImageMatrices* getImageMatrices() = 0;
     virtual bool           isRAW () const = 0;
     virtual DCPProfile*    getDCP (const ColorManagementParams &cmp, DCPProfile::ApplyState &as)
     {

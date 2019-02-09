@@ -182,7 +182,6 @@ int StdImageSource::load (const Glib::ustring &fname)
         plistener->setProgressStr ("PROGRESSBAR_READY");
         plistener->setProgress (1.0);
     }
-
     wb = ColorTemp (1.0, 1.0, 1.0, 1.0);
     //this is probably a mistake if embedded profile is not D65
 

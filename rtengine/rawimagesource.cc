@@ -604,7 +604,7 @@ float calculate_scale_mul(float scale_mul[4], const float pre_mul_[4], const flo
         }
     }
 
-    float gain = 1.0f; // max(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]) / min(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]);
+    float gain = max(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]) / min(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]);
     return gain;
 }
 
@@ -625,12 +625,12 @@ void RawImageSource::getImage (const ColorTemp &ctemp, int tran, Imagefloat* ima
         bm = ri->get_pre_mul(2);
     } else {
         ctemp.getMultipliers (r, g, b);
-        //rm = imatrices.cam_rgb[0][0] * r + imatrices.cam_rgb[0][1] * g + imatrices.cam_rgb[0][2] * b;
-        //gm = imatrices.cam_rgb[1][0] * r + imatrices.cam_rgb[1][1] * g + imatrices.cam_rgb[1][2] * b;
-        //bm = imatrices.cam_rgb[2][0] * r + imatrices.cam_rgb[2][1] * g + imatrices.cam_rgb[2][2] * b;
-        rm = r;
-        gm = g;
-        bm = b;
+        rm = imatrices.cam_rgb[0][0] * r + imatrices.cam_rgb[0][1] * g + imatrices.cam_rgb[0][2] * b;
+        gm = imatrices.cam_rgb[1][0] * r + imatrices.cam_rgb[1][1] * g + imatrices.cam_rgb[1][2] * b;
+        bm = imatrices.cam_rgb[2][0] * r + imatrices.cam_rgb[2][1] * g + imatrices.cam_rgb[2][2] * b;
+        //rm = r;
+        //gm = g;
+        //bm = b;
         float maxCMul = max(rm, gm, bm);
         rm /= maxCMul;
         gm /= maxCMul;
@@ -716,7 +716,7 @@ void RawImageSource::getImage (const ColorTemp &ctemp, int tran, Imagefloat* ima
     hlmax[1] = clmax[1] * gm;
     hlmax[2] = clmax[2] * bm;
 
-    const bool doClip = false; // (chmax[0] >= clmax[0] || chmax[1] >= clmax[1] || chmax[2] >= clmax[2]) && !hrp.hrenabled && hrp.clampOOG;
+    const bool doClip = (chmax[0] >= clmax[0] || chmax[1] >= clmax[1] || chmax[2] >= clmax[2]) && !hrp.hrenabled && hrp.clampOOG;
 
     float area = skip * skip;
     rm /= area;
@@ -1613,7 +1613,7 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
     }
 
     // create profile
-    memset (imatrices.xyz_cam, 0, sizeof(imatrices.xyz_cam));
+    //memset (imatrices.xyz_cam, 0, sizeof(imatrices.xyz_cam));
     
     // Getting imatrices.xyz_cam values directly form the dcraw raw image
     ri->get_cam_xyz(imatrices.cam_xyz);
@@ -1625,8 +1625,6 @@ int RawImageSource::load (const Glib::ustring &fname, bool firstFrameOnly)
             for (int k = 0; k < 3; k++) {
                 imatrices.xyz_cam[i][j] += xyz_sRGB[i][k] * imatrices.rgb_cam[k][j];
             }*/
-    
-    
 
     camProfile = ICCStore::getInstance()->createFromMatrix (imatrices.xyz_cam, false, "Camera");
 
