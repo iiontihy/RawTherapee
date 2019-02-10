@@ -603,8 +603,11 @@ float calculate_scale_mul(float scale_mul[4], const float pre_mul_[4], const flo
             scale_mul[c] = (pre_mul[c] / maxpremul) * 65535.0 / (c_white[c] - c_black[c]);
         }
     }
+    
+    float maxMul = max(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]);
+    float minMul = min(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]);
 
-    float gain = 1.0f; //max(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]) / min(scale_mul[0], scale_mul[1], scale_mul[2], scale_mul[3]);
+    float gain =  0.5f * maxMul / minMul + 0.5f;
     return gain;
 }
 
@@ -714,7 +717,7 @@ void RawImageSource::getImage (const ColorTemp &ctemp, int tran, Imagefloat* ima
     hlmax[1] = clmax[1] * gm;
     hlmax[2] = clmax[2] * bm;
 
-    const bool doClip = false; //(chmax[0] >= clmax[0] || chmax[1] >= clmax[1] || chmax[2] >= clmax[2]) && !hrp.hrenabled && hrp.clampOOG;
+    const bool doClip = (chmax[0] >= clmax[0] || chmax[1] >= clmax[1] || chmax[2] >= clmax[2]) && !hrp.hrenabled && hrp.clampOOG;
 
     float area = skip * skip;
     rm /= area;
